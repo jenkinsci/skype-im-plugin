@@ -1,0 +1,8 @@
+This plugin requires special hudson setup to work.
+
+1. Skype must be running as the same user as the hudson server
+2. If running hudson on a 64bit JDK you must add a windows slave running on a 32bit jdk
+3. If running hudson on a anything but windows add a windows slave running on a 32bit jdk
+4. The slave must have a "skype" label
+5. Check the logs to see if it connects ok to skype
+5. Good luck
