@@ -2,17 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.jvnet.hudson.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>1.371</version>
-        <relativePath>../pom.xml</relativePath>
+          <groupId>org.jenkins-ci.plugins</groupId>
+		  <artifactId>plugin</artifactId>		  
+		  <version>1.404</version>
     </parent>
     
-    <groupId>org.jvnet.hudson.plugins</groupId>
+    <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>skype-notifier</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
-    <name>Hudson Skype notifier plugin</name>
+    <name>Jenkins Skype notifier plugin</name>
     
     <url>http://wiki.hudson-ci.org/display/HUDSON/Skype+Plugin</url>
     <developers>
@@ -25,7 +24,7 @@
     </developers>
     
     <properties>
-        <version.instant-messaging.plugin>1.9</version.instant-messaging.plugin>
+        <version.instant-messaging.plugin>1.13</version.instant-messaging.plugin>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
@@ -53,7 +52,7 @@
     <dependencies>
         <dependency>
             <groupId>org.jvnet.hudson.plugins</groupId>
-            <artifactId>instant-messaging</artifactId>
+		    <artifactId>instant-messaging</artifactId>
             <version>${version.instant-messaging.plugin}</version>
             <scope>compile</scope>
         </dependency>
@@ -64,18 +63,23 @@
             <version>3.8.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>org.eclipse.swt.win32.win32</groupId>
             <artifactId>x86</artifactId>
+            <version>3.3.0-v3346</version>
+        </dependency>-->
+		<dependency>
+            <groupId>org.eclipse.swt.gtk.linux</groupId>
+			<artifactId>x86</artifactId>
             <version>3.3.0-v3346</version>
         </dependency>
     </dependencies>
 
-    <scm>
-        <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/trunk/hudson/plugins/jabber</connection>
-        <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/trunk/hudson/plugins/jabber</developerConnection>
-        <url>http://fisheye4.atlassian.com/browse/hudson/trunk/hudson/plugins/jabber</url>
-    </scm>
+     <scm>
+		<connection>scm:git:ssh://github.com/jenkinsci/skype-im-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/skype-im-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/skype-im-plugin</url>
+	  </scm>
    <!--  get every artifact through maven.glassfish.org, which proxies all the artifacts that we need
   -->
     <repositories>
