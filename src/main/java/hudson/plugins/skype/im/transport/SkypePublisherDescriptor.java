@@ -12,7 +12,6 @@ import hudson.plugins.im.IMMessageTargetConversionException;
 import hudson.plugins.im.IMMessageTargetConverter;
 import hudson.plugins.im.IMPublisherDescriptor;
 import hudson.plugins.im.NotificationStrategy;
-import hudson.plugins.im.tools.Assert;
 import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
@@ -37,6 +36,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.springframework.util.Assert;
 
 public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> implements IMPublisherDescriptor {
 
@@ -264,7 +264,7 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
      */
     @Override
     public SkypePublisher newInstance(final StaplerRequest req, JSONObject formData) throws FormException {
-        Assert.isNotNull(req, "Parameter 'req' must not be null.");
+        Assert.notNull(req, "Parameter 'req' must not be null.");
         final String t = req.getParameter(SkypePublisherDescriptor.PARAMETERNAME_TARGETS);
         final String[] split;
         if (t != null) {

@@ -5,7 +5,6 @@
 
 package hudson.plugins.skype.im.transport;
 
-import com.skype.SkypeException;
 import hudson.plugins.im.IMException;
 
 /**

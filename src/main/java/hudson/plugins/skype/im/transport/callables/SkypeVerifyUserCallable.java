@@ -32,12 +32,27 @@ public class SkypeVerifyUserCallable implements Callable<String, SkypeIMExceptio
         for (String skypeId : skypeNames) {
             User usr = SkypeImpl.getUser(skypeId);
             
-                try {
-                    if (usr != null && usr.getFullName() != null && !usr.getFullName().isEmpty()) {
+                try {                    
+                    if (usr == null || usr.getFullName() == null || usr.getFullName().trim().length() <= 0) {
+                        usr = null;
+                        User[] users = SkypeImpl.searchUsers(skypeId);
+
+                        for (User user : users) {
+                            if (user.getId().equals(skypeId)) {
+                                usr = user;
+                                break;
+                            } else if (skypeId.contains("@")) {
+                                usr = user;
+                                break;
+                            }
+                        }
+                    }
+                    if (usr != null) {
+                        BuddyStatus bdyStatus = usr.getBuddyStatus();
                         if (!usr.isAuthorized()) {
                             usr.setAuthorized(true);
                         }
-                        System.out.println("BDY ("+usr.getDisplayName()+"):'" + usr.getBuddyStatus() + "' :'" + BuddyStatus.ADDED + "'");
+                        System.out.println("BDY ("+usr.getDisplayName()+"):'" + bdyStatus + "' :'" + BuddyStatus.ADDED + "'");
                         if (!usr.getBuddyStatus().equals(BuddyStatus.ADDED)) {
                             try {
                                 SkypeImpl.getContactList().addFriend(usr, "The Skype Service on " + InetAddress.getLocalHost().getHostName() + " wants to notify you");

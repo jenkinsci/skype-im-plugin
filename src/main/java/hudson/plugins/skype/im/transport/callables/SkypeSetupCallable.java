@@ -17,6 +17,8 @@ import hudson.plugins.skype.im.transport.SkypeIMException;
 import hudson.plugins.skype.im.transport.SkypeMessage;
 import hudson.plugins.skype.im.transport.SkypeMessageListenerAdapter;
 import hudson.remoting.Callable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -29,10 +31,16 @@ import java.util.logging.Logger;
  * @author jbh
  */
 public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
-
+    static Collection<String> supportedArchs = null;
+    static {
+        supportedArchs = new ArrayList<String>();
+        supportedArchs.add("x86");
+        supportedArchs.add("i386");
+        supportedArchs.add("i586");
+    }
     public Boolean call() throws SkypeIMException {
         try {
-            if (!System.getProperty("os.arch").contains("x86")) {
+            if (!supportedArchs.contains(System.getProperty("os.arch"))) {
                 throw new RuntimeException("Cannot use skype server on a 64 bit jvm (" + System.getProperty("os.arch") + ")");
             }
             if (!SkypeImpl.isInstalled()) {

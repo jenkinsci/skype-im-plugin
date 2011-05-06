@@ -317,10 +317,11 @@ public final class ConnectorUtils {
             try {
                 System.loadLibrary(libraryName);
             } catch (UnsatisfiedLinkError err) {
+                err.printStackTrace();
                 String libraryFileName = System.mapLibraryName(libraryName);
                 URL url = ConnectorUtils.class.getResource("/" + libraryFileName);
                 File libraryFile;
-                if(url.getProtocol().toLowerCase().equals("file")) {
+                if(url != null && url.getProtocol().toLowerCase().equals("file")) {
                     try {
                         libraryFile = new File(URLDecoder.decode(url.getPath(), "UTF-8"));
                     } catch(UnsupportedEncodingException e) {

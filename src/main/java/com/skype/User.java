@@ -242,6 +242,14 @@ public class User extends SkypeObject {
     }
 
     /**
+     * Return the handle of this user
+     * @return String with handle.
+     * @throws SkypeException when connection to Skype client has gone bad.
+     */
+    public final String getHandle() throws SkypeException {
+        return getProperty("HANDLE");
+    }
+    /**
      * Return the birthdate of this User.
      * @return Date of birthday.
      * @throws SkypeException when connection to Skype client has gone bad.

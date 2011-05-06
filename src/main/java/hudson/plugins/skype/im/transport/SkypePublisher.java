@@ -10,13 +10,13 @@ import hudson.plugins.im.IMMessageTarget;
 import hudson.plugins.im.IMMessageTargetConversionException;
 import hudson.plugins.im.IMMessageTargetConverter;
 import hudson.plugins.im.IMPublisher;
-import hudson.plugins.im.tools.Assert;
 import hudson.plugins.skype.user.SkypeUserProperty;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 
 import java.util.List;
+import org.springframework.util.Assert;
 
 /**
  * Skype-specific implementation of the {@link IMPublisher}.
@@ -61,7 +61,7 @@ public class SkypePublisher extends IMPublisher {
          */
         @Override
         public String toString(final IMMessageTarget target) {
-            Assert.isNotNull(target, "Parameter 'target' must not be null.");
+            Assert.notNull(target, "Parameter 'target' must not be null.");
             return target.toString();
         }
     }

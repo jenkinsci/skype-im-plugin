@@ -21,6 +21,7 @@
  ******************************************************************************/
 package com.skype.connector.test;
 
+import com.skype.SkypeImpl;
 import java.util.*;
 
 import com.skype.connector.*;
@@ -218,5 +219,14 @@ public final class TestConnector extends Connector {
 
     @Override
     protected void disposeImpl() {
+    }
+    public static void main(String args[]) throws Exception {
+        if (!SkypeImpl.isInstalled()) {
+            throw new RuntimeException("Skype not installed.");
+        }
+        if (!SkypeImpl.isRunning()) {
+            throw new RuntimeException("Skype is not running.");
+        }
+        SkypeImpl.chat("no32717223").send("TEST");
     }
 }

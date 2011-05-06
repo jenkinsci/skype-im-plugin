@@ -18,7 +18,6 @@ import hudson.plugins.im.IMException;
 import hudson.plugins.im.IMMessageTarget;
 import hudson.plugins.im.IMPresence;
 import hudson.plugins.im.bot.Bot;
-import hudson.plugins.im.tools.Assert;
 import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.plugins.skype.im.transport.callables.SkypeChatCallable;
 import hudson.plugins.skype.im.transport.callables.SkypeSetupCallable;
@@ -37,6 +36,7 @@ import java.util.logging.Logger;
 import javax.mail.event.ConnectionListener;
 
 import org.acegisecurity.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Smack-specific implementation of {@link IMConnection}.
@@ -74,7 +74,7 @@ class SkypeIMConnection extends AbstractIMConnection {
 
     SkypeIMConnection(SkypePublisherDescriptor desc, Authentication authentication) throws IMException {
         super(desc);
-        Assert.isNotNull(desc, "Parameter 'desc' must not be null.");
+        Assert.notNull(desc, "Parameter 'desc' must not be null.");
         this.desc = desc;
         this.authentication = authentication;
         this.hostname = desc.getHost();
@@ -174,8 +174,8 @@ class SkypeIMConnection extends AbstractIMConnection {
 
      void send(final IMMessageTarget target, final String text)
             throws IMException {
-        Assert.isNotNull(target, "Parameter 'target' must not be null.");
-        Assert.isNotNull(text, "Parameter 'text' must not be null.");
+        Assert.notNull(target, "Parameter 'target' must not be null.");
+        Assert.notNull(text, "Parameter 'text' must not be null.");
         LOGGER.info("Send to " + target + " val " + text);
         try {
             // prevent long waits for lock
@@ -241,7 +241,7 @@ class SkypeIMConnection extends AbstractIMConnection {
     @Override
     public void setPresence(final IMPresence impresence, String statusMessage)
             throws IMException {
-        Assert.isNotNull(impresence, "Parameter 'impresence' must not be null.");
+        Assert.notNull(impresence, "Parameter 'impresence' must not be null.");
         if (this.desc.isExposePresence()) {
             this.impresence = impresence;
             this.imStatusMessage = statusMessage;
