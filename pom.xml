@@ -13,7 +13,7 @@
     <packaging>hpi</packaging>
     <name>Jenkins Skype notifier plugin</name>
     
-    <url>http://wiki.hudson-ci.org/display/HUDSON/Skype+Plugin</url>
+    <url>http://wiki.jenkins-ci.org/display/HUDSON/Skype+Plugin</url>
     <developers>
         <developer>
             <id>jbh</id>
