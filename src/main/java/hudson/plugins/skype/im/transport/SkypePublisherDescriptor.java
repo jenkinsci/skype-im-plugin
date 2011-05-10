@@ -11,7 +11,9 @@ import hudson.plugins.im.IMMessageTarget;
 import hudson.plugins.im.IMMessageTargetConversionException;
 import hudson.plugins.im.IMMessageTargetConverter;
 import hudson.plugins.im.IMPublisherDescriptor;
+import hudson.plugins.im.MatrixJobMultiplier;
 import hudson.plugins.im.NotificationStrategy;
+import hudson.plugins.im.build_notify.BuildToChatNotifier;
 import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
@@ -309,12 +311,17 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
         boolean notifyCulprits = "on".equals(req.getParameter(PARAMETERNAME_NOTIFY_CULPRITS));
         boolean notifyFixers = "on".equals(req.getParameter(PARAMETERNAME_NOTIFY_FIXERS));
         boolean notifyUpstream = "on".equals(req.getParameter(PARAMETERNAME_NOTIFY_UPSTREAM_COMMITTERS));
-        try {
-            return new SkypePublisher(targets, n, notifyStart, notifySuspects, notifyCulprits,
-                    notifyFixers, notifyUpstream);
-        } catch (final IMMessageTargetConversionException e) {
-            throw new FormException(e, SkypePublisherDescriptor.PARAMETERNAME_TARGETS);
+        
+        MatrixJobMultiplier matrixJobMultiplier = MatrixJobMultiplier.ONLY_CONFIGURATIONS;
+        if (formData.has("matrixNotifier")) {
+            String o = formData.getString("matrixNotifier");
+            matrixJobMultiplier = MatrixJobMultiplier.valueOf(o);
         }
+               
+        return new SkypePublisher(targets, n, notifyStart, notifySuspects, notifyCulprits,
+                    notifyFixers, notifyUpstream, req.bindJSON(BuildToChatNotifier.class,formData.getJSONObject("buildToChatNotifier")),
+            		matrixJobMultiplier);
+       
     }
 
     /**

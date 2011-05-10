@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
@@ -10,34 +9,30 @@ import com.skype.ChatMessage;
 import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
 import com.skype.SkypeImpl;
-import hudson.plugins.im.IMConnectionListener;
-import hudson.plugins.im.bot.Bot;
-import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
-import hudson.plugins.skype.im.transport.SkypeMessage;
-import hudson.plugins.skype.im.transport.SkypeMessageListenerAdapter;
 import hudson.remoting.Callable;
+import hudson.remoting.Channel;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
 
 /**
  *
  * @author jbh
  */
 public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
+
     static Collection<String> supportedArchs = null;
+
     static {
         supportedArchs = new ArrayList<String>();
         supportedArchs.add("x86");
         supportedArchs.add("i386");
         supportedArchs.add("i586");
     }
+
     public Boolean call() throws SkypeIMException {
         try {
             if (!supportedArchs.contains(System.getProperty("os.arch"))) {
@@ -51,15 +46,33 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
             }
             SkypeImpl.setDebug(true);
             SkypeImpl.setDaemon(true);
-            SkypeImpl.addChatMessageListener(new SkypeSetupCallable.IMListener());
+            addSkypeListener(Channel.current());
             return true;
         } catch (SkypeException ex) {
             throw new SkypeIMException(ex);
         }
     }
-   
+
+    private void addSkypeListener(Channel channel) throws SkypeException {
+        final IMListener listener = new SkypeSetupCallable.IMListener(channel);
+        SkypeImpl.addChatMessageListener(listener);
+        channel.addListener(new Channel.Listener() {
+            @Override
+            public void onClosed(Channel channel, IOException cause) {
+                SkypeImpl.removeChatMessageListener(listener);
+                System.err.println("Removed skype listener");
+            }
+        });
+    }
 
     private final class IMListener implements ChatMessageListener {
+
+        Channel masterChannel = null;
+
+        public IMListener(Channel channel) {
+            masterChannel = channel;
+
+        }
 
         public void chatMessageReceived(ChatMessage receivedChatMessage) throws SkypeException {
             if (receivedChatMessage.getType().equals(ChatMessage.Type.SAID)) {
@@ -77,15 +90,7 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
             final Chat chat;
             try {
                 chat = receivedChatMessage.getChat();
-
-                Bot bot = new Bot(new SkypeChat(chat), "hudson",
-                        "hostname", "!", null);
-                
-
-                if (receivedChatMessage != null) {
-                    // replay original message:
-                    bot.onMessage(new SkypeMessage(receivedChatMessage, true ));//Ask skype
-                }
+                masterChannel.call(new BotCommandCallable(chat, receivedChatMessage));
             } catch (SkypeException ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
             } catch (Exception ex) {

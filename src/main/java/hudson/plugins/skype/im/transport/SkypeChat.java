@@ -15,13 +15,13 @@ import java.util.logging.Logger;
  * @author kutzi
  */
 public class SkypeChat implements IMChat {
+
     private final Chat chat;
-    
     private SkypeMessageListenerAdapter messageListener;
 
     public SkypeChat(Chat chat) {
         this.chat = chat;
-        
+
     }
 
     public void sendMessage(String msg) throws IMException {
@@ -33,9 +33,9 @@ public class SkypeChat implements IMChat {
     }
 
     public String getNickName(String sender) {
-    	return sender;
+        return sender;
     }
-    
+
     public void addMessageListener(IMMessageListener listener) {
         this.messageListener = new SkypeMessageListenerAdapter(listener);
         try {
@@ -46,13 +46,13 @@ public class SkypeChat implements IMChat {
     }
 
     public void removeMessageListener(IMMessageListener listener) {
-		// doesn't work out-of the box with Smack
-    	
-            SkypeImpl.removeChatMessageListener(messageListener);
-        
-	}
+        // doesn't work out-of the box with Smack
 
-	public boolean isMultiUserChat() {
+        SkypeImpl.removeChatMessageListener(messageListener);
+
+    }
+
+    public boolean isMultiUserChat() {
         return false;
     }
 

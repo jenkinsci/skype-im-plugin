@@ -22,6 +22,7 @@ import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.plugins.skype.im.transport.callables.SkypeChatCallable;
 import hudson.plugins.skype.im.transport.callables.SkypeSetupCallable;
 import hudson.plugins.skype.im.transport.callables.SkypeVerifyUserCallable;
+import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import java.io.IOException;
 
@@ -70,7 +71,7 @@ class SkypeIMConnection extends AbstractIMConnection {
     private String imStatusMessage;
     private final SkypePublisherDescriptor desc;
     private final Authentication authentication;
-    private Slave skypeSlave = null; 
+    private Slave skypeSlave = null;
 
     SkypeIMConnection(SkypePublisherDescriptor desc, Authentication authentication) throws IMException {
         super(desc);
@@ -89,7 +90,7 @@ class SkypeIMConnection extends AbstractIMConnection {
         } else {
             this.groupChats = new String[0];
         }
-        this.impresence = desc.isExposePresence() ? IMPresence.AVAILABLE : IMPresence.UNAVAILABLE;       
+        this.impresence = desc.isExposePresence() ? IMPresence.AVAILABLE : IMPresence.UNAVAILABLE;
     }
 
     @Override
@@ -126,7 +127,6 @@ class SkypeIMConnection extends AbstractIMConnection {
     public void close() {
         lock();
         try {
-           
         } finally {
             unlock();
         }
@@ -146,6 +146,14 @@ class SkypeIMConnection extends AbstractIMConnection {
                         try {
                             result = (Boolean) slave.getChannel().call(callable);
                             if (result) {
+                                if (slave.getChannel() instanceof Channel) {
+                                    ((Channel)slave.getChannel()).addListener(new Channel.Listener() {
+                                        @Override
+                                         public void onClosed(Channel channel, IOException cause) {
+                                             skypeSlave = null;
+                                         }
+                                    });
+                                }
                                 skypeSlave = slave;
                                 break;
                             }
@@ -163,16 +171,12 @@ class SkypeIMConnection extends AbstractIMConnection {
             }
         } else {
 
-                result = (Boolean) callable.call();
-            }
-            return result;
+            result = (Boolean) callable.call();
         }
+        return result;
+    }
 
- 
-
-    public
-
-     void send(final IMMessageTarget target, final String text)
+    public void send(final IMMessageTarget target, final String text)
             throws IMException {
         Assert.notNull(target, "Parameter 'target' must not be null.");
         Assert.notNull(text, "Parameter 'text' must not be null.");
@@ -210,7 +214,7 @@ class SkypeIMConnection extends AbstractIMConnection {
         }
     }
 
-    private VirtualChannel getChannel() {
+    public VirtualChannel getChannel() {
         if (skypeSlave != null && skypeSlave.getComputer() != null && skypeSlave.getComputer().isOnline()) {
             return skypeSlave.getChannel();
         } else {
@@ -219,13 +223,11 @@ class SkypeIMConnection extends AbstractIMConnection {
     }
 
     private void verifyUser(final IMMessageTarget target) throws SkypeIMException {
-        try {
-            User usr = Hudson.getInstance().getUser(target.toString());
-
-            SkypeVerifyUserCallable callable = new SkypeVerifyUserCallable(new String[]{target.toString()});
+        try {            
+            SkypeVerifyUserCallable callable = new SkypeVerifyUserCallable(target.toString());
             String result = getChannel().call(callable);
-            if (result != null && !result.isEmpty()) {
-                throw new SkypeIMException(result);
+            if (result != null) {
+                throw new SkypeIMException("Could not find user "+target);
             }
         } catch (IOException ex) {
             throw new SkypeIMException(ex);

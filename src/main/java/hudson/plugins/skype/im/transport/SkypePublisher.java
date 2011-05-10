@@ -2,6 +2,7 @@ package hudson.plugins.skype.im.transport;
 
 import hudson.Extension;
 import hudson.model.User;
+import hudson.model.UserProperty;
 import hudson.plugins.im.DefaultIMMessageTarget;
 import hudson.plugins.im.GroupChatIMMessageTarget;
 import hudson.plugins.im.IMConnection;
@@ -10,10 +11,15 @@ import hudson.plugins.im.IMMessageTarget;
 import hudson.plugins.im.IMMessageTargetConversionException;
 import hudson.plugins.im.IMMessageTargetConverter;
 import hudson.plugins.im.IMPublisher;
+import hudson.plugins.im.MatrixJobMultiplier;
+import hudson.plugins.im.build_notify.BuildToChatNotifier;
+import hudson.plugins.skype.im.transport.callables.SkypeVerifyUserCallable;
 import hudson.plugins.skype.user.SkypeUserProperty;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Mailer;
 import hudson.tasks.Publisher;
+import java.io.IOException;
 
 import java.util.List;
 import org.springframework.util.Assert;
@@ -26,57 +32,22 @@ import org.springframework.util.Assert;
  */
 public class SkypePublisher extends IMPublisher {
 
-    private static class SkypeIMMessageTargetConverter implements IMMessageTargetConverter {
-
-        private void checkValidity(final String f) throws IMMessageTargetConversionException {
-
-        }
-
-        @Override
-        public IMMessageTarget fromString(final String targetAsString) throws IMMessageTargetConversionException {
-            String f = targetAsString.trim();
-            if (f.length() > 0) {
-                IMMessageTarget target;
-                if (f.startsWith("*")) {
-                    f = f.substring(1);
-                    // group chat
-                    if (!f.contains("@")) {
-                        f += "@conference." + SkypePublisher.DESCRIPTOR.getHostname();
-                    }
-                    target = new GroupChatIMMessageTarget(f);
-                } else if (f.contains("@conference.")) {
-                    target = new GroupChatIMMessageTarget(f);
-                } else {                    
-                    target = new DefaultIMMessageTarget(f);
-                }
-                checkValidity(f);
-                return target;
-            } else {
-                return null;
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString(final IMMessageTarget target) {
-            Assert.notNull(target, "Parameter 'target' must not be null.");
-            return target.toString();
-        }
-    }
+    
     @Extension
     public static final SkypePublisherDescriptor DESCRIPTOR = new SkypePublisherDescriptor();
     static final IMMessageTargetConverter CONVERTER = new SkypeIMMessageTargetConverter();
 
-    public SkypePublisher(List<IMMessageTarget> targets, String notificationStrategy,
-            boolean notifyGroupChatsOnBuildStart,
-            boolean notifySuspects,
-            boolean notifyCulprits,
-            boolean notifyFixers,
-            boolean notifyUpstreamCommitters) throws IMMessageTargetConversionException {
-        super(targets, notificationStrategy, notifyGroupChatsOnBuildStart,
-                notifySuspects, notifyCulprits, notifyFixers, notifyUpstreamCommitters);
+    public SkypePublisher(List<IMMessageTarget> defaultTargets,
+    		String notificationStrategyString,
+    		boolean notifyGroupChatsOnBuildStart,
+    		boolean notifySuspects,
+    		boolean notifyCulprits,
+    		boolean notifyFixers,
+    		boolean notifyUpstreamCommitters,
+            BuildToChatNotifier buildToChatNotifier,
+            MatrixJobMultiplier matrixMultiplier) {
+        super(defaultTargets, notificationStrategyString, notifyGroupChatsOnBuildStart,
+                notifySuspects, notifyCulprits, notifyFixers, notifyUpstreamCommitters, buildToChatNotifier, matrixMultiplier);
     }
 
     @Override
@@ -85,7 +56,7 @@ public class SkypePublisher extends IMPublisher {
     }
 
     @Override
-    protected IMConnection getIMConnection() throws IMException {        
+    protected IMConnection getIMConnection() throws IMException {
         return SkypeIMConnectionProvider.getInstance().currentConnection();
     }
 
@@ -97,10 +68,26 @@ public class SkypePublisher extends IMPublisher {
     @Override
     protected String getConfiguredIMId(User user) {
         SkypeUserProperty skypeUserProperty = (SkypeUserProperty) user.getProperties().get(SkypeUserProperty.DESCRIPTOR);
-        if (skypeUserProperty != null) {
-            return skypeUserProperty.getSkypeId();
+        String result = null;
+        if (skypeUserProperty != null && skypeUserProperty.getSkypeId() != null && skypeUserProperty.getSkypeId().length() > 0) {
+            result = skypeUserProperty.getSkypeId();
+        } else {
+            try {                            
+                Mailer.UserProperty prop = user.getProperty(Mailer.UserProperty.class);
+                System.out.println("TRying "+prop);
+                if (prop != null) {
+                    SkypeVerifyUserCallable callable = new SkypeVerifyUserCallable(prop.getAddress());
+                    result = ((SkypeIMConnection)getIMConnection()).getChannel().call(callable);                    
+                    user.addProperty(new SkypeUserProperty(result));
+                    user.save();
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -121,5 +108,40 @@ public class SkypePublisher extends IMPublisher {
     // since Hudson 1.319:
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.BUILD;
+    }
+    
+    private static class SkypeIMMessageTargetConverter implements IMMessageTargetConverter {
+
+        private void checkValidity(final String f) throws IMMessageTargetConversionException {
+        }
+
+        @Override
+        public IMMessageTarget fromString(final String targetAsString) throws IMMessageTargetConversionException {
+            String f = targetAsString.trim();
+            if (f.length() > 0) {
+                IMMessageTarget target;
+                if (f.startsWith("*")) {
+                    f = f.substring(1);                    
+                    target = new GroupChatIMMessageTarget(f);
+                } else if (f.contains("@conference.")) {
+                    target = new GroupChatIMMessageTarget(f);
+                } else {
+                    target = new DefaultIMMessageTarget(f);
+                }
+                checkValidity(f);
+                return target;
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString(final IMMessageTarget target) {
+            Assert.notNull(target, "Parameter 'target' must not be null.");
+            return target.toString();
+        }
     }
 }

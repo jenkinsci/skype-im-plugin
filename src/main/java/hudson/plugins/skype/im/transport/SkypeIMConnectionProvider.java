@@ -4,10 +4,6 @@ import hudson.plugins.im.IMConnection;
 import hudson.plugins.im.IMConnectionProvider;
 import hudson.plugins.im.IMException;
 import hudson.plugins.im.IMPublisherDescriptor;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * Jabber implementation of an {@link IMConnectionProvider}.
@@ -24,11 +20,11 @@ final class SkypeIMConnectionProvider extends IMConnectionProvider
     }
     private static final SkypeIMConnectionProvider INSTANCE = new SkypeIMConnectionProvider();
     
-    static final SkypeIMConnectionProvider getInstance() {
+    static SkypeIMConnectionProvider getInstance() {
         return INSTANCE;
     }
     
-    static final synchronized void setDesc(IMPublisherDescriptor desc) throws IMException {
+    static void setDesc(IMPublisherDescriptor desc) throws IMException {
     	synchronized(INSTANCE) {
             INSTANCE.setDescriptor(desc);                  
         }        
@@ -41,11 +37,11 @@ final class SkypeIMConnectionProvider extends IMConnectionProvider
     }
 
     @Override
-    public synchronized IMConnection createConnection() throws IMException {       
+    public IMConnection createConnection() throws IMException {       
         synchronized(INSTANCE) {
             if (getDescriptor() == null) {
         	throw new RuntimeException  ("No descriptor");
-            };
+            }
             IMConnection imConnection = new SkypeIMConnection((SkypePublisherDescriptor)getDescriptor(),
                             null);
             if (imConnection.connect()) {

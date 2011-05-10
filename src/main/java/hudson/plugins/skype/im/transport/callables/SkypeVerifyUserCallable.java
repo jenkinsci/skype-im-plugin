@@ -21,55 +21,55 @@ import java.util.logging.Logger;
  */
 public class SkypeVerifyUserCallable implements Callable<String, SkypeIMException> {
 
-    private String[] skypeNames = null;
+    private String skypeNames = null;
 
-    public SkypeVerifyUserCallable(String[] names) {
+    public SkypeVerifyUserCallable(String names) {
         this.skypeNames = names;
     }
 
     public String call() throws SkypeIMException {
-        StringBuilder res = new StringBuilder();
-        for (String skypeId : skypeNames) {
-            User usr = SkypeImpl.getUser(skypeId);
-            
-                try {                    
-                    if (usr == null || usr.getFullName() == null || usr.getFullName().trim().length() <= 0) {
-                        usr = null;
-                        User[] users = SkypeImpl.searchUsers(skypeId);
+        String result = null;
 
-                        for (User user : users) {
-                            if (user.getId().equals(skypeId)) {
-                                usr = user;
-                                break;
-                            } else if (skypeId.contains("@")) {
-                                usr = user;
-                                break;
-                            }
-                        }
+        User usr = SkypeImpl.getUser(skypeNames);
+
+        try {
+            if (usr == null || usr.getFullName() == null || usr.getFullName().trim().length() <= 0) {
+                usr = null;
+                User[] users = SkypeImpl.searchUsers(skypeNames);
+
+                for (User user : users) {
+                    if (user.getId().equals(skypeNames)) {
+                        usr = user;
+                        break;
+                    } else if (skypeNames.contains("@")) {
+                        //EMail, so this must be ok.
+                        usr = user;
+                        break;
                     }
-                    if (usr != null) {
-                        BuddyStatus bdyStatus = usr.getBuddyStatus();
-                        if (!usr.isAuthorized()) {
-                            usr.setAuthorized(true);
-                        }
-                        System.out.println("BDY ("+usr.getDisplayName()+"):'" + bdyStatus + "' :'" + BuddyStatus.ADDED + "'");
-                        if (!usr.getBuddyStatus().equals(BuddyStatus.ADDED)) {
-                            try {
-                                SkypeImpl.getContactList().addFriend(usr, "The Skype Service on " + InetAddress.getLocalHost().getHostName() + " wants to notify you");
-                            } catch (UnknownHostException ex) {
-                                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-                                throw new SkypeIMException(ex);
-                            }
-                        }
-                    } else {
-                        res.append("Could not find ").append(skypeId);
-                    }
-                } catch (SkypeException ex) {
-                    throw new SkypeIMException(ex);
                 }
-
-            
+            }
+            if (usr != null) {
+                BuddyStatus bdyStatus = usr.getBuddyStatus();
+                if (!usr.isAuthorized()) {
+                    usr.setAuthorized(true);
+                }
+                System.out.println("BDY (" + usr.getDisplayName() + "):'" + bdyStatus + "' :'" + BuddyStatus.ADDED + "'");
+                if (!usr.getBuddyStatus().equals(BuddyStatus.ADDED)) {
+                    try {
+                        SkypeImpl.getContactList().addFriend(usr, "The Skype Service on " + InetAddress.getLocalHost().getHostName() + " wants to notify you");
+                    } catch (UnknownHostException ex) {
+                        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+                        throw new SkypeIMException(ex);
+                    }
+                    result = usr.getId();
+                }
+            }
+        } catch (SkypeException ex) {
+            throw new SkypeIMException(ex);
         }
-        return res.toString();
+
+
+
+        return result;
     }
 }
