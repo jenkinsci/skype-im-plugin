@@ -20,8 +20,10 @@ import hudson.plugins.im.IMPresence;
 import hudson.plugins.im.bot.Bot;
 import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.plugins.skype.im.transport.callables.SkypeChatCallable;
+import hudson.plugins.skype.im.transport.callables.SkypeGroupChatCallable;
 import hudson.plugins.skype.im.transport.callables.SkypeSetupCallable;
 import hudson.plugins.skype.im.transport.callables.SkypeVerifyUserCallable;
+import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import java.io.IOException;
@@ -137,7 +139,7 @@ class SkypeIMConnection extends AbstractIMConnection {
         SkypeSetupCallable callable = new SkypeSetupCallable();
         Boolean result = Boolean.FALSE;
         if (!System.getProperty("os.arch").contains("x86")) {
-            List<Node> nodes = Hudson.getInstance().getNodes();
+            //List<Node> nodes = Hudson.getInstance().getNodes();
             Label labelToFind = Label.get("skype");
             if (labelToFind.isAssignable()) {
                 for (Node node : labelToFind.getNodes()) {
@@ -170,7 +172,6 @@ class SkypeIMConnection extends AbstractIMConnection {
                 Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, "Cannot find nodes with label skype");
             }
         } else {
-
             result = (Boolean) callable.call();
         }
         return result;
@@ -187,19 +188,23 @@ class SkypeIMConnection extends AbstractIMConnection {
                 return;
             }
             try {
+                SkypeChatCallable msgCallable;
                 if (target instanceof GroupChatIMMessageTarget) {
+                    System.out.println("Group:"+target);
+                    msgCallable = new SkypeGroupChatCallable(target.toString(), text);
                 } else {
                     verifyUser(target);
                     //final ChatMessage chat = skypeServ.chat(target.toString(), text);
-                    SkypeChatCallable callable = new SkypeChatCallable(new String[]{target.toString()}, text);
-                    try {
-                        getChannel().call(callable);
+                    msgCallable = new SkypeChatCallable(new String[]{target.toString()}, text);
+                   
+                }
+                 try {
+                        getChannel().call(msgCallable);
                     } catch (IOException ex) {
                         throw new SkypeIMException(ex);
                     } catch (InterruptedException ex) {
                         throw new SkypeIMException(ex);
                     }
-                }
             } catch (final SkypeIMException e) {
                 // server unavailable ? Target-host unknown ? Well. Just skip this
                 // one.
@@ -305,8 +310,9 @@ class SkypeIMConnection extends AbstractIMConnection {
     @Override
     public boolean isConnected() {
         lock();
-        boolean conn = getChannel() != null;
+        boolean conn = false; 
         try {
+            conn = getChannel() != null;
         } finally {
             unlock();
         }

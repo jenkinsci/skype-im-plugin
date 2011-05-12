@@ -1,9 +1,15 @@
 package hudson.plugins.skype.im.transport;
 
+import hudson.Extension;
+import hudson.model.Computer;
+import hudson.model.Hudson;
+import hudson.model.TaskListener;
 import hudson.plugins.im.IMConnection;
 import hudson.plugins.im.IMConnectionProvider;
 import hudson.plugins.im.IMException;
 import hudson.plugins.im.IMPublisherDescriptor;
+import hudson.slaves.ComputerListener;
+import java.io.IOException;
 
 /**
  * Jabber implementation of an {@link IMConnectionProvider}.
@@ -46,10 +52,19 @@ final class SkypeIMConnectionProvider extends IMConnectionProvider
                             null);
             if (imConnection.connect()) {
                     return imConnection;
-            }
+            } 
         }
         throw new IMException("Connection failed");
         
     }
-   
+    @Extension
+   public static class SkypeComputerListener extends ComputerListener {
+        @Override
+        public void onOnline(Computer c, TaskListener listener) throws IOException, InterruptedException {
+            if (c.getNode().getLabelString().contains("skype")) {
+                SkypeIMConnectionProvider.getInstance().connectionBroken(null);
+                System.out.println("Node came online, retry");
+            }
+        }
+    }
 }

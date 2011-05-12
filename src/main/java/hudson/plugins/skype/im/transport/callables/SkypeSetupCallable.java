@@ -42,7 +42,8 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
                 throw new RuntimeException("Skype not installed.");
             }
             if (!SkypeImpl.isRunning()) {
-                throw new RuntimeException("Skype is not running.");
+                //throw new RuntimeException("Skype is not running.");
+                System.err.println("Skype is probably not running");
             }
             SkypeImpl.setDebug(true);
             SkypeImpl.setDaemon(true);

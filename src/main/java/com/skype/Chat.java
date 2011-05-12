@@ -290,7 +290,14 @@ public final class Chat extends SkypeObject {
     public String getWindowTitle() throws SkypeException {
         return getProperty("FRIENDLYNAME");
     }
-
+/**
+     * Get the topic name of this chat.
+     * @return topic name of this chat.
+     * @throws SkypeException when the connection has gone bad.
+     */
+    public String getDescription() throws SkypeException {
+        return getProperty("DESCRIPTION");
+    }
     /** 
      * Return all chatting members on this CHAT.
      * @return array of chatting users.

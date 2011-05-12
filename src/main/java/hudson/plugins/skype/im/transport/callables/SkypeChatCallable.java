@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class SkypeChatCallable implements Callable<ChatMessage, SkypeIMException> {
     private String[] skypeNames = null;
-    private String message = null;
+    protected String message = null;
 
     public SkypeChatCallable(String[] names, String msg) {
         this.skypeNames = names;

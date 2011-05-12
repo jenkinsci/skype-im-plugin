@@ -5,6 +5,8 @@
 
 package hudson.plugins.skype.im.transport;
 
+import com.skype.Chat;
+import com.skype.SkypeImpl;
 import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.Node.Mode;
@@ -122,5 +124,5 @@ public class SkypeIMConnectionTest extends HudsonTestCase {
 //        // TODO review the generated test code and remove the default call to fail.
 //        fail("The test case is a prototype.");
 //    }
-
+   
 }

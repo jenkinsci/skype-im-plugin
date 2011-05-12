@@ -40,13 +40,14 @@ final class SkypeFramework {
             String commandPath = "\"" + installedPath + "\"";
             WinProcess.enableDebugPrivilege();
             for(WinProcess process: WinProcess.all()) {
-                int pid = process.getPid();
+                int pid = process.getPid();                
                 try {
+                    //System.err.println("proc '"+process.getCommandLine()+"' compared to '"+commandPath+"'");
                     if (pid != 0 && pid != 4 && process.getCommandLine().startsWith(commandPath)) {
                         return true;
                     }
                 } catch (WinpException e) {
-                    //Ignore
+                   // System.err.println(pid+":"+e.getMessage());
                 }
             }
             return false;
