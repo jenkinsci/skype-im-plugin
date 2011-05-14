@@ -50,11 +50,7 @@ public class BotCommandCallable implements Callable<Boolean, SkypeIMException> {
                 } catch (Exception ex) {
                     throw new IMException(ex);
                 }
-            }
-            @Override
-             public void addMessageListener(IMMessageListener listener) {
-                 
-             }
+            }            
         };
         Bot bot = new Bot(skypeChat, "hudson",
                 "hostname", "!", null);

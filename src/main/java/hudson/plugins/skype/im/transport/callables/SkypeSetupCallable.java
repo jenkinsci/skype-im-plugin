@@ -9,7 +9,10 @@ import com.skype.ChatMessage;
 import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
 import com.skype.SkypeImpl;
+import hudson.plugins.im.bot.Bot;
+import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
+import hudson.plugins.skype.im.transport.SkypeMessage;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import java.io.IOException;
@@ -57,13 +60,15 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
     private void addSkypeListener(Channel channel) throws SkypeException {
         final IMListener listener = new SkypeSetupCallable.IMListener(channel);
         SkypeImpl.addChatMessageListener(listener);
-        channel.addListener(new Channel.Listener() {
-            @Override
-            public void onClosed(Channel channel, IOException cause) {
-                SkypeImpl.removeChatMessageListener(listener);
-                System.err.println("Removed skype listener");
-            }
-        });
+        if (channel != null) {
+            channel.addListener(new Channel.Listener() {
+                @Override
+                public void onClosed(Channel channel, IOException cause) {
+                    SkypeImpl.removeChatMessageListener(listener);
+                    System.err.println("Removed skype listener");
+                }
+            });
+        }
     }
 
     private final class IMListener implements ChatMessageListener {
@@ -91,7 +96,17 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
             final Chat chat;
             try {
                 chat = receivedChatMessage.getChat();
-                masterChannel.call(new BotCommandCallable(chat, receivedChatMessage));
+                if (masterChannel != null) {
+                    masterChannel.call(new BotCommandCallable(chat, receivedChatMessage));
+                } else {
+                    SkypeChat skypeChat = new SkypeChat(chat);
+                    Bot bot = new Bot(skypeChat, "hudson",
+                        "hostname", "!", null);
+                    if (receivedChatMessage != null) {
+                        // replay original message:
+                        bot.onMessage(new SkypeMessage(receivedChatMessage, true));//Ask skype                        
+                    }
+                }
             } catch (SkypeException ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
             } catch (Exception ex) {

@@ -7,7 +7,6 @@ package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
 import com.skype.ChatMessage;
-import com.skype.Friend;
 import com.skype.SkypeException;
 import com.skype.SkypeImpl;
 import com.skype.Group;
@@ -28,20 +27,20 @@ public class SkypeGroupChatCallable extends SkypeChatCallable {
     @Override
     public ChatMessage call() throws SkypeIMException {
         try {
-            Group group = SkypeImpl.getContactList().getGroup(chatName);
-
+            Group group = SkypeImpl.getContactList().getGroup(chatName);            
             Chat[] chats = SkypeImpl.getAllChats();
             Chat useChat = null;
             for (Chat chat : chats) {
                 if (chat.getWindowTitle().contains(chatName)) {
                     useChat = chat;
+                    break;
                 }
             }
             if (useChat == null && group != null) {
                 useChat = SkypeImpl.chat("");
                 useChat.setTopic(chatName);
                 useChat.addUsers(group.getAllFriends());              
-            } else {
+            } else if (useChat == null) {              
                 throw new SkypeIMException("Could not find group/category/chat "+chatName);
             } 
             return useChat.send(message);

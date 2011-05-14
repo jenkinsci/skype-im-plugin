@@ -5,6 +5,7 @@ package hudson.plugins.skype.im.transport;
 
 import hudson.plugins.skype.im.transport.callables.SkypeMoodCallable;
 import com.skype.Profile;
+import hudson.model.Computer;
 import hudson.model.Hudson;
 import hudson.model.Label;
 import hudson.model.Node;
@@ -73,7 +74,7 @@ class SkypeIMConnection extends AbstractIMConnection {
     private String imStatusMessage;
     private final SkypePublisherDescriptor desc;
     private final Authentication authentication;
-    private Slave skypeSlave = null;
+    private Node skypeSlave = null;
 
     SkypeIMConnection(SkypePublisherDescriptor desc, Authentication authentication) throws IMException {
         super(desc);
@@ -136,43 +137,56 @@ class SkypeIMConnection extends AbstractIMConnection {
 
     private synchronized boolean createConnection() throws IMException {
         System.err.println("createConnection ");
-        SkypeSetupCallable callable = new SkypeSetupCallable();
+
         Boolean result = Boolean.FALSE;
         if (!System.getProperty("os.arch").contains("x86")) {
             //List<Node> nodes = Hudson.getInstance().getNodes();
             Label labelToFind = Label.get("skype");
             if (labelToFind.isAssignable()) {
                 for (Node node : labelToFind.getNodes()) {
-                    Slave slave = (Slave) node;
-                    if (slave != null && slave.getComputer() != null && slave.getComputer().isAcceptingTasks()) {
-                        try {
-                            result = (Boolean) slave.getChannel().call(callable);
-                            if (result) {
-                                if (slave.getChannel() instanceof Channel) {
-                                    ((Channel)slave.getChannel()).addListener(new Channel.Listener() {
-                                        @Override
-                                         public void onClosed(Channel channel, IOException cause) {
-                                             skypeSlave = null;
-                                         }
-                                    });
-                                }
-                                skypeSlave = slave;
-                                break;
-                            }
-                        } catch (IOException ex) {
-                            Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        result = Boolean.FALSE;
+                    if (verifySlave((Slave) node)) {
+                        result = Boolean.TRUE;
+                        break;
                     }
+
                 }
             } else {
                 Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, "Cannot find nodes with label skype");
             }
         } else {
-            result = (Boolean) callable.call();
+            Hudson hudson = Hudson.getInstance();
+            result = verifySlave(hudson);
+        }
+        return result;
+    }
+
+    private Boolean verifySlave(Node slave) {
+        SkypeSetupCallable callable = new SkypeSetupCallable();
+        Boolean result = false;
+        Computer comp = slave.toComputer();
+        if (slave != null && comp != null && comp.isAcceptingTasks()) {
+            try {
+                result = (Boolean) slave.getChannel().call(callable);
+                if (result) {
+                    if (slave.getChannel() instanceof Channel) {
+                        ((Channel) slave.getChannel()).addListener(new Channel.Listener() {
+
+                            @Override
+                            public void onClosed(Channel channel, IOException cause) {
+                                skypeSlave = null;
+                            }
+                        });
+                    }
+                    skypeSlave = slave;
+
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            result = Boolean.FALSE;
         }
         return result;
     }
@@ -190,21 +204,21 @@ class SkypeIMConnection extends AbstractIMConnection {
             try {
                 SkypeChatCallable msgCallable;
                 if (target instanceof GroupChatIMMessageTarget) {
-                    System.out.println("Group:"+target);
+                    System.out.println("Group:" + target);
                     msgCallable = new SkypeGroupChatCallable(target.toString(), text);
                 } else {
                     verifyUser(target);
                     //final ChatMessage chat = skypeServ.chat(target.toString(), text);
                     msgCallable = new SkypeChatCallable(new String[]{target.toString()}, text);
-                   
+
                 }
-                 try {
-                        getChannel().call(msgCallable);
-                    } catch (IOException ex) {
-                        throw new SkypeIMException(ex);
-                    } catch (InterruptedException ex) {
-                        throw new SkypeIMException(ex);
-                    }
+                try {
+                    getChannel().call(msgCallable);
+                } catch (IOException ex) {
+                    throw new SkypeIMException(ex);
+                } catch (InterruptedException ex) {
+                    throw new SkypeIMException(ex);
+                }
             } catch (final SkypeIMException e) {
                 // server unavailable ? Target-host unknown ? Well. Just skip this
                 // one.
@@ -220,7 +234,7 @@ class SkypeIMConnection extends AbstractIMConnection {
     }
 
     public VirtualChannel getChannel() {
-        if (skypeSlave != null && skypeSlave.getComputer() != null && skypeSlave.getComputer().isOnline()) {
+        if (skypeSlave != null && skypeSlave.toComputer() != null && skypeSlave.toComputer().isOnline()) {
             return skypeSlave.getChannel();
         } else {
             return null;
@@ -228,11 +242,11 @@ class SkypeIMConnection extends AbstractIMConnection {
     }
 
     private void verifyUser(final IMMessageTarget target) throws SkypeIMException {
-        try {            
+        try {
             SkypeVerifyUserCallable callable = new SkypeVerifyUserCallable(target.toString());
             String result = getChannel().call(callable);
             if (result != null) {
-                throw new SkypeIMException("Could not find user "+target);
+                throw new SkypeIMException("Could not find user " + target);
             }
         } catch (IOException ex) {
             throw new SkypeIMException(ex);
@@ -310,7 +324,7 @@ class SkypeIMConnection extends AbstractIMConnection {
     @Override
     public boolean isConnected() {
         lock();
-        boolean conn = false; 
+        boolean conn = false;
         try {
             conn = getChannel() != null;
         } finally {

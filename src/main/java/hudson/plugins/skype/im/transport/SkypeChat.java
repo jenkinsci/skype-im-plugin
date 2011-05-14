@@ -1,6 +1,7 @@
 package hudson.plugins.skype.im.transport;
 
 import com.skype.Chat;
+import com.skype.Chat.Status;
 import com.skype.SkypeImpl;
 import com.skype.SkypeException;
 import hudson.plugins.im.IMChat;
@@ -37,23 +38,27 @@ public class SkypeChat implements IMChat {
     }
 
     public void addMessageListener(IMMessageListener listener) {
-        this.messageListener = new SkypeMessageListenerAdapter(listener);
-        try {
-            SkypeImpl.addChatMessageListener(messageListener);
-        } catch (SkypeException ex) {
-            Logger.getLogger(SkypeChat.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //this.messageListener = new SkypeMessageListenerAdapter(listener);
+        //try {
+        //    SkypeImpl.addChatMessageListener(messageListener);
+        //} catch (SkypeException ex) {
+        //    Logger.getLogger(SkypeChat.class.getName()).log(Level.SEVERE, null, ex);
+       // }
     }
 
     public void removeMessageListener(IMMessageListener listener) {
         // doesn't work out-of the box with Smack
 
-        SkypeImpl.removeChatMessageListener(messageListener);
+        //SkypeImpl.removeChatMessageListener(messageListener);
 
     }
 
     public boolean isMultiUserChat() {
-        return false;
+        try {
+            return chat.getStatus().equals(Status.MULTI_SUBSCRIBED);
+        } catch (SkypeException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public String getIMId(String user) {
