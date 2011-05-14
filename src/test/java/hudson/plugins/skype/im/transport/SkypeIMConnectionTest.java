@@ -57,7 +57,7 @@ public class SkypeIMConnectionTest extends HudsonTestCase {
         System.out.println("connect");
         
         boolean expResult = true;
-        boolean result = instance.connect();
+        boolean result = instance.isConnected();
         assertEquals(expResult, result);
         
     }
