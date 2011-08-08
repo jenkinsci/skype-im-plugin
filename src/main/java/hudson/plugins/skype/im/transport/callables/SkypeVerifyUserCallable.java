@@ -36,15 +36,15 @@ public class SkypeVerifyUserCallable implements Callable<String, SkypeIMExceptio
             if (usr == null || usr.getFullName() == null || usr.getFullName().trim().length() <= 0) {
                 usr = null;
                 User[] users = SkypeImpl.searchUsers(skypeNames);
-
-                for (User user : users) {
-                    if (user.getId().equals(skypeNames)) {
-                        usr = user;
-                        break;
-                    } else if (skypeNames.contains("@")) {
+                if (skypeNames != null && skypeNames.contains("@")) {
                         //EMail, so this must be ok.
-                        usr = user;
-                        break;
+                    usr = users[0];
+                } else {
+                    for (User user : users) {
+                        if (user.getId().equals(skypeNames)) {
+                            usr = user;
+                            break;
+                        }
                     }
                 }
             }
