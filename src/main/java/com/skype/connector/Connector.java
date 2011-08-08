@@ -736,7 +736,12 @@ public abstract class Connector {
             }
         };
         try {
-            return execute(command, checker, checkAttached, withoutTimeout).get();
+            String result = execute(command, checker, checkAttached, withoutTimeout).get();
+            if (result.contains("ERROR 68")) {
+                setStatus(Status.NOT_AVAILABLE);
+                throw new NotAttachedException(Status.NOT_AVAILABLE);
+            }
+            return result;
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ConnectorException("The '" + command + "' command was interrupted.", e);

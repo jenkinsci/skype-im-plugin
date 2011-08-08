@@ -53,8 +53,13 @@ public final class CommandFailedException extends SkypeException {
             response = response.substring("ERROR ".length());
         }
         int spaceIndex = response.indexOf(' ');
-        code = Integer.parseInt(response.substring(0, spaceIndex));
-        message = response.substring(spaceIndex + 1);
+        if(spaceIndex < 0){
+            code = Integer.parseInt(response);
+            message = response;
+        } else {
+            code = Integer.parseInt(response.substring(0, spaceIndex));
+            message = response.substring(spaceIndex + 1);
+        }
     }
 
     /**

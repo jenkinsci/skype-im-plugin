@@ -181,7 +181,6 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
         return "Skype Notification";
     }
 
-    @Override
     public String getPluginDescription() {
         return "Skype plugin";
     }
@@ -189,12 +188,10 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
     /**
      * {@inheritDoc}
      */
-    @Override
     public boolean isEnabled() {
         return Boolean.TRUE.equals(this.enabled);
     }
 
-    @Override
     @Deprecated
     public String getHostname() {
         return this.hostname;
@@ -209,7 +206,6 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
         return this.hudsonNickname;
     }
 
-    @Override
     public String getPassword() {
         return this.hudsonPassword;
     }
@@ -218,7 +214,6 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
         return this.groupChatNickname;
     }
 
-    @Override
     public int getPort() {
         return this.port;
     }
@@ -251,12 +246,10 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
         return Util.fixEmptyAndTrim(this.initialGroupChats);
     }
 
-    @Override
     public String getDefaultIdSuffix() {
         return null;
     }
 
-    @Override
     public String getCommandPrefix() {
         return this.commandPrefix;
     }
@@ -415,27 +408,22 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
     /**
      *Returns the skypeid.
      */
-    @Override
     public String getUserName() {
         return getSkypeId();
     }
 
-    @Override
     public String getHudsonPassword() {
         return this.hudsonCiPassword;
     }
 
-    @Override
     public String getHudsonUserName() {
         return this.hudsonCiLogin;
     }
 
-    @Override
     public IMMessageTargetConverter getIMMessageTargetConverter() {
         return SkypePublisher.CONVERTER;
     }
 
-    @Override
     public List<IMMessageTarget> getDefaultTargets() {
         // not implemented for Skype bot
         return Collections.emptyList();

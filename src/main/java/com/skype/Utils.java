@@ -73,7 +73,7 @@ final class Utils {
         if (response == null) {
             return;
         }
-        if (response.startsWith("ERROR ")) {
+        if (response.startsWith("ERROR ")) {            
             throw new CommandFailedException(response);
         }
     }

@@ -115,7 +115,6 @@ public class SkypePublisher extends IMPublisher {
         private void checkValidity(final String f) throws IMMessageTargetConversionException {
         }
 
-        @Override
         public IMMessageTarget fromString(final String targetAsString) throws IMMessageTargetConversionException {
             String f = targetAsString.trim();
             if (f.length() > 0) {
@@ -138,7 +137,6 @@ public class SkypePublisher extends IMPublisher {
         /**
          * {@inheritDoc}
          */
-        @Override
         public String toString(final IMMessageTarget target) {
             Assert.notNull(target, "Parameter 'target' must not be null.");
             return target.toString();

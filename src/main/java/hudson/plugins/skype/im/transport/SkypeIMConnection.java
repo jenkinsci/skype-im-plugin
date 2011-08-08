@@ -96,7 +96,6 @@ class SkypeIMConnection extends AbstractIMConnection {
         this.impresence = desc.isExposePresence() ? IMPresence.AVAILABLE : IMPresence.UNAVAILABLE;
     }
 
-    @Override
     public boolean connect() {
         lock();
         boolean connected = false;
@@ -126,7 +125,6 @@ class SkypeIMConnection extends AbstractIMConnection {
         return connected;
     }
 
-    @Override
     public void close() {
         lock();
         try {
@@ -259,7 +257,6 @@ class SkypeIMConnection extends AbstractIMConnection {
      * This implementation ignores the new presence if
      * {@link JabberPublisherDescriptor#isExposePresence()} is false.
      */
-    @Override
     public void setPresence(final IMPresence impresence, String statusMessage)
             throws IMException {
         Assert.notNull(impresence, "Parameter 'impresence' must not be null.");
@@ -321,7 +318,6 @@ class SkypeIMConnection extends AbstractIMConnection {
         }
     }
 
-    @Override
     public boolean isConnected() {
         lock();
         boolean conn = false;
@@ -340,7 +336,6 @@ class SkypeIMConnection extends AbstractIMConnection {
     private final Map<IMConnectionListener, ConnectionListener> listeners =
             new ConcurrentHashMap<IMConnectionListener, ConnectionListener>();
 
-    @Override
     public void addConnectionListener(final IMConnectionListener listener) {
         lock();
         try {
@@ -349,7 +344,6 @@ class SkypeIMConnection extends AbstractIMConnection {
         }
     }
 
-    @Override
     public void removeConnectionListener(IMConnectionListener listener) {
         lock();
         try {
