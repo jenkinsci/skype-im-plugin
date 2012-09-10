@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>1.404</version>
+        <groupId>org.jvnet.hudson.plugins</groupId>
+        <artifactId>instant-messaging-parent</artifactId>
+        <version>1.20</version>
     </parent>
     
     <groupId>org.jenkins-ci.plugins</groupId>
@@ -24,31 +24,10 @@
     </developers>
     
     <properties>
-        <version.instant-messaging.plugin>1.16</version.instant-messaging.plugin>
+        <version.instant-messaging.plugin>1.22</version.instant-messaging.plugin>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>index.jelly</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>index.jelly</exclude>
-                </excludes>
-            </resource>
-        </resources>
-    
-    
-    </build>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.jvnet.hudson.plugins</groupId>
@@ -57,17 +36,6 @@
             <scope>compile</scope>
         </dependency>
       
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.2</version>
-            <scope>test</scope>
-        </dependency>
-       <!-- <dependency>
-            <groupId>org.eclipse.swt.win32.win32</groupId>
-            <artifactId>x86</artifactId>
-            <version>3.3.0-v3346</version>
-        </dependency>-->
         <dependency>
             <groupId>org.eclipse.swt.win32.win32</groupId>
             <artifactId>x86</artifactId>

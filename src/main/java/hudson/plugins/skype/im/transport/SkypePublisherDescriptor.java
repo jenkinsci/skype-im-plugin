@@ -14,6 +14,7 @@ import hudson.plugins.im.IMPublisherDescriptor;
 import hudson.plugins.im.MatrixJobMultiplier;
 import hudson.plugins.im.NotificationStrategy;
 import hudson.plugins.im.build_notify.BuildToChatNotifier;
+import hudson.plugins.im.config.ParameterNames;
 import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
@@ -431,5 +432,14 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
 
     public String getHost() {
         return "localhost";
+    }
+
+    public ParameterNames getParamNames() {
+        return new ParameterNames() {
+            @Override
+            protected String getPrefix() {
+                return PREFIX;
+            }
+        };
     }
 }
