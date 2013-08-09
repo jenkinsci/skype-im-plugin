@@ -23,20 +23,8 @@ import java.util.logging.Logger;
  */
 public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
 
-    static Collection<String> supportedArchs = null;
-
-    static {
-        supportedArchs = new ArrayList<String>();
-        supportedArchs.add("x86");
-        supportedArchs.add("i386");
-        supportedArchs.add("i586");
-    }
-
     public Boolean call() throws SkypeIMException {
         try {
-            if (!supportedArchs.contains(System.getProperty("os.arch"))) {
-                throw new RuntimeException("Cannot use skype server on a 64 bit jvm (" + System.getProperty("os.arch") + ")");
-            }
             if (!Skype.isInstalled()) {
                 throw new RuntimeException("Skype not installed.");
             }
