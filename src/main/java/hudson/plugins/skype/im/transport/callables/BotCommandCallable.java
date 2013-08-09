@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
@@ -9,13 +5,11 @@ import com.skype.ChatMessage;
 import com.skype.SkypeException;
 import hudson.plugins.im.IMException;
 import hudson.plugins.im.IMMessage;
-import hudson.plugins.im.IMMessageListener;
 import hudson.plugins.im.bot.Bot;
 import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
-import java.io.IOException;
 
 /**
  *
