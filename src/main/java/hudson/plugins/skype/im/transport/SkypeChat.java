@@ -61,4 +61,9 @@ public class SkypeChat implements IMChat {
     public String getIMId(String user) {
         return user;
     }
+
+    public boolean isCommandsAccepted() {
+        // since the code above is commented out, no command is accepted
+        return false;
+    }
 }

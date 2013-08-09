@@ -1,6 +1,3 @@
-/**
- * 
- */
 package hudson.plugins.skype.im.transport;
 
 import hudson.Util;
@@ -14,6 +11,7 @@ import hudson.plugins.im.IMPublisherDescriptor;
 import hudson.plugins.im.MatrixJobMultiplier;
 import hudson.plugins.im.NotificationStrategy;
 import hudson.plugins.im.build_notify.BuildToChatNotifier;
+import hudson.plugins.im.config.ParameterNames;
 import hudson.plugins.im.tools.ExceptionHelper;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
@@ -35,7 +33,7 @@ import net.sf.json.JSONObject;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.apache.commons.lang.StringUtils;
+
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.springframework.util.Assert;
@@ -58,8 +56,8 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
     public static final String PARAMETERNAME_INITIAL_GROUPCHATS = SkypePublisherDescriptor.PREFIX + "initialGroupChats";
     public static final String PARAMETERNAME_COMMAND_PREFIX = SkypePublisherDescriptor.PREFIX + "commandPrefix";
     public static final String PARAMETERNAME_DEFAULT_ID_SUFFIX = SkypePublisherDescriptor.PREFIX + "defaultIdSuffix";
-    public static final String PARAMETERNAME_HUDSON_LOGIN = SkypePublisherDescriptor.PREFIX + "hudsonLogin";
-    public static final String PARAMETERNAME_HUDSON_PASSWORD = SkypePublisherDescriptor.PREFIX + "hudsonPassword";
+    public static final String PARAMETERNAME_HUDSON_LOGIN = SkypePublisherDescriptor.PREFIX + "jenkinsLogin";
+    public static final String PARAMETERNAME_HUDSON_PASSWORD = SkypePublisherDescriptor.PREFIX + "jenkinsPassword";
     public static final String[] PARAMETERVALUE_STRATEGY_VALUES = NotificationStrategy.getDisplayNames();
     public static final String PARAMETERVALUE_STRATEGY_DEFAULT = NotificationStrategy.STATECHANGE_ONLY.getDisplayName();
     public static final String DEFAULT_COMMAND_PREFIX = "!";
@@ -313,7 +311,7 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
                
         return new SkypePublisher(targets, n, notifyStart, notifySuspects, notifyCulprits,
                     notifyFixers, notifyUpstream, req.bindJSON(BuildToChatNotifier.class,formData.getJSONObject("buildToChatNotifier")),
-            		matrixJobMultiplier);
+                    matrixJobMultiplier);
        
     }
 
@@ -431,5 +429,14 @@ public class SkypePublisherDescriptor extends BuildStepDescriptor<Publisher> imp
 
     public String getHost() {
         return "localhost";
+    }
+
+    public ParameterNames getParamNames() {
+        return new ParameterNames() {
+            @Override
+            protected String getPrefix() {
+                return SkypePublisherDescriptor.PREFIX;
+            }
+        };
     }
 }
