@@ -2,13 +2,10 @@ package hudson.plugins.skype.im.transport;
 
 import com.skype.Chat;
 import com.skype.Chat.Status;
-import com.skype.SkypeImpl;
 import com.skype.SkypeException;
 import hudson.plugins.im.IMChat;
 import hudson.plugins.im.IMException;
 import hudson.plugins.im.IMMessageListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * 1-on-1 Jabber chat.

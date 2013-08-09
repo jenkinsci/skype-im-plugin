@@ -1,14 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
 import com.skype.ChatMessage;
 import com.skype.SkypeException;
-import com.skype.SkypeImpl;
+import com.skype.Skype;
 import com.skype.Group;
 import hudson.plugins.skype.im.transport.SkypeIMException;
 
@@ -27,8 +22,8 @@ public class SkypeGroupChatCallable extends SkypeChatCallable {
     @Override
     public ChatMessage call() throws SkypeIMException {
         try {
-            Group group = SkypeImpl.getContactList().getGroup(chatName);            
-            Chat[] chats = SkypeImpl.getAllChats();
+            Group group = Skype.getContactList().getGroup(chatName);            
+            Chat[] chats = Skype.getAllChats();
             Chat useChat = null;
             for (Chat chat : chats) {
                 if (chat.getWindowTitle().contains(chatName)) {
@@ -37,7 +32,7 @@ public class SkypeGroupChatCallable extends SkypeChatCallable {
                 }
             }
             if (useChat == null && group != null) {
-                useChat = SkypeImpl.chat("");
+                useChat = Skype.chat("");
                 useChat.setTopic(chatName);
                 useChat.addUsers(group.getAllFriends());              
             } else if (useChat == null) {              

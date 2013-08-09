@@ -1,13 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package hudson.plugins.skype.im.transport;
 
 import com.skype.Chat;
 import com.skype.Group;
-import com.skype.SkypeImpl;
-import junit.framework.Test;
+import com.skype.Skype;
 import junit.framework.TestCase;
 
 /**
@@ -18,20 +13,20 @@ public class testskype extends TestCase {
      
      public void testSkype() throws Exception {
          
-         SkypeImpl.setDebug(true);
-          Group group = SkypeImpl.getContactList().getGroup("devs");
-          for (Group tg : SkypeImpl.getContactList().getAllSystemGroups()) {
+         Skype.setDebug(true);
+          Group group = Skype.getContactList().getGroup("devs");
+          for (Group tg : Skype.getContactList().getAllSystemGroups()) {
               System.out.println("group:"+tg.getType()+":"+tg.getDisplayName());
           }
           Chat useChat = null;
-        for (Chat chat : SkypeImpl.getAllChats()) {
+        for (Chat chat : Skype.getAllChats()) {
             System.out.println(chat.getWindowTitle()+" "+chat.getStatus());
             if (chat.getWindowTitle().equals("devs")) {
                 useChat = chat;
             }
         }
         if (useChat == null) {
-            useChat = SkypeImpl.chat("");
+            useChat = Skype.chat("");
             useChat.setTopic("devs");
             useChat.addUsers(group.getAllFriends());
         }

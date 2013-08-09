@@ -1,14 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
 import com.skype.ChatMessage;
 import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
-import com.skype.SkypeImpl;
+import com.skype.Skype;
 import hudson.plugins.im.bot.Bot;
 import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
@@ -41,15 +37,15 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
             if (!supportedArchs.contains(System.getProperty("os.arch"))) {
                 throw new RuntimeException("Cannot use skype server on a 64 bit jvm (" + System.getProperty("os.arch") + ")");
             }
-            if (!SkypeImpl.isInstalled()) {
+            if (!Skype.isInstalled()) {
                 throw new RuntimeException("Skype not installed.");
             }
-            if (!SkypeImpl.isRunning()) {
+            if (!Skype.isRunning()) {
                 //throw new RuntimeException("Skype is not running.");
                 System.err.println("Skype is probably not running");
             }
-            SkypeImpl.setDebug(true);
-            SkypeImpl.setDaemon(true);
+            Skype.setDebug(true);
+            Skype.setDaemon(true);
             addSkypeListener(Channel.current());
             return true;
         } catch (SkypeException ex) {
@@ -59,12 +55,12 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
 
     private void addSkypeListener(Channel channel) throws SkypeException {
         final IMListener listener = new SkypeSetupCallable.IMListener(channel);
-        SkypeImpl.addChatMessageListener(listener);
+        Skype.addChatMessageListener(listener);
         if (channel != null) {
             channel.addListener(new Channel.Listener() {
                 @Override
                 public void onClosed(Channel channel, IOException cause) {
-                    SkypeImpl.removeChatMessageListener(listener);
+                    Skype.removeChatMessageListener(listener);
                     System.err.println("Removed skype listener");
                 }
             });
