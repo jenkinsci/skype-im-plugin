@@ -63,7 +63,6 @@ public class SkypeChat implements IMChat {
     }
 
     public boolean isCommandsAccepted() {
-        // since the code above is commented out, no command is accepted
-        return false;
+        return true;
     }
 }

@@ -142,7 +142,7 @@ class SkypeIMConnection extends AbstractIMConnection {
             Label labelToFind = Label.get("skype");
             if (labelToFind.isAssignable()) {
                 for (Node node : labelToFind.getNodes()) {
-                    if (verifySlave((Slave) node)) {
+                    if (verifySlave(node)) {
                         result = Boolean.TRUE;
                         break;
                     }
