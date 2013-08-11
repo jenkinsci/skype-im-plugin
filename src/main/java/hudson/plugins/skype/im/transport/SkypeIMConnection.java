@@ -137,24 +137,18 @@ class SkypeIMConnection extends AbstractIMConnection {
         System.err.println("createConnection ");
 
         Boolean result = Boolean.FALSE;
-        if (!System.getProperty("os.arch").contains("x86")) {
-            //List<Node> nodes = Hudson.getInstance().getNodes();
-            Label labelToFind = Label.get("skype");
-            if (labelToFind.isAssignable()) {
-                for (Node node : labelToFind.getNodes()) {
-                    if (verifySlave(node)) {
-                        result = Boolean.TRUE;
-                        break;
-                    }
-
+        Label labelToFind = Label.get("skype");
+        if (labelToFind.isAssignable()) {
+            for (Node node : labelToFind.getNodes()) {
+                if (verifySlave(node)) {
+                    result = Boolean.TRUE;
+                    break;
                 }
-            } else {
-                Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, "Cannot find nodes with label skype");
             }
         } else {
-            Hudson hudson = Hudson.getInstance();
-            result = verifySlave(hudson);
+            Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, "Cannot find nodes with label skype");
         }
+
         return result;
     }
 
