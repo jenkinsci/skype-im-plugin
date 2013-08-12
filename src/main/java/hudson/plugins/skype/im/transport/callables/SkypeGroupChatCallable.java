@@ -18,10 +18,10 @@ public class SkypeGroupChatCallable extends SkypeChatCallable {
     public SkypeGroupChatCallable(String chatName, String msg) {
         super(null, msg);
         this.chatName = chatName;        
-
     }
+
     @Override
-    public ChatMessage call() throws SkypeIMException {
+    public Void call() throws SkypeIMException {
         try {
             Group group = Skype.getContactList().getGroup(chatName);
             Chat[] chats = Skype.getAllChats();
@@ -34,18 +34,20 @@ public class SkypeGroupChatCallable extends SkypeChatCallable {
                     break;
                 }
             }
+
             if (useChat == null && group != null) {
                 useChat = Skype.chat("");
                 useChat.setTopic(chatName);
                 useChat.addUsers(group.getAllFriends());              
             } else if (useChat == null) {              
                 throw new SkypeIMException("Could not find group/category/chat "+chatName);
-            } 
-            return useChat.send(message);
-            
+            }
+
+            useChat.send(message);
         } catch (SkypeException ex) {
             throw new SkypeIMException(ex);
         }
-    }
 
+        return null;
+    }
 }

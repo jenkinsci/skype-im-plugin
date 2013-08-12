@@ -12,8 +12,6 @@ import hudson.plugins.skype.im.transport.SkypeMessage;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

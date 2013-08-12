@@ -10,7 +10,7 @@ import hudson.remoting.Callable;
  *
  * @author jbh
  */
-public class SkypeMoodCallable implements Callable<Object, SkypeIMException> {
+public class SkypeMoodCallable implements Callable<Void, SkypeIMException> {
 
     private String mood;
     private Profile.Status status;
@@ -20,7 +20,7 @@ public class SkypeMoodCallable implements Callable<Object, SkypeIMException> {
         this.status = status;
     }
 
-    public Object call() throws SkypeIMException {
+    public Void call() throws SkypeIMException {
         try {
             if (status != null) {
                 Skype.getProfile().setStatus(status);
@@ -31,6 +31,7 @@ public class SkypeMoodCallable implements Callable<Object, SkypeIMException> {
         } catch (SkypeException ex) {
             throw new SkypeIMException(ex);
         }
+
         return null;
     }
 }
