@@ -2,6 +2,7 @@ package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
 import com.skype.ChatMessage;
+import com.skype.ChatUtils;
 import com.skype.SkypeException;
 import com.skype.Skype;
 import com.skype.Group;
@@ -22,11 +23,13 @@ public class SkypeGroupChatCallable extends SkypeChatCallable {
     @Override
     public ChatMessage call() throws SkypeIMException {
         try {
-            Group group = Skype.getContactList().getGroup(chatName);            
+            Group group = Skype.getContactList().getGroup(chatName);
             Chat[] chats = Skype.getAllChats();
             Chat useChat = null;
             for (Chat chat : chats) {
-                if (chat.getWindowTitle().contains(chatName)) {
+                // get direct property due to the fact that topic != friendlyname
+                String chatTopic = ChatUtils.getChatTopic(chat);
+                if (chatTopic.contains(chatName)) {
                     useChat = chat;
                     break;
                 }

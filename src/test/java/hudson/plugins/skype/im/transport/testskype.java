@@ -1,6 +1,7 @@
 package hudson.plugins.skype.im.transport;
 
 import com.skype.Chat;
+import com.skype.ChatUtils;
 import com.skype.Group;
 import com.skype.Skype;
 import junit.framework.TestCase;
@@ -20,8 +21,9 @@ public class testskype extends TestCase {
           }
           Chat useChat = null;
         for (Chat chat : Skype.getAllChats()) {
-            System.out.println(chat.getWindowTitle()+" "+chat.getStatus());
-            if (chat.getWindowTitle().equals("devs")) {
+            String chatTopic = ChatUtils.getChatTopic(chat);
+            System.out.println(chatTopic+" "+chat.getStatus());
+            if (chatTopic.equals("devs")) {
                 useChat = chat;
             }
         }
