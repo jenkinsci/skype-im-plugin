@@ -5,11 +5,10 @@ import com.skype.ChatMessage;
 import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
 import com.skype.Skype;
-import hudson.plugins.im.bot.Bot;
 import hudson.plugins.skype.im.transport.LocalSkypeChat;
+import hudson.plugins.skype.im.transport.RemoteSkypeChat;
 import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
-import hudson.plugins.skype.im.transport.SkypeMessage;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import java.io.IOException;
@@ -75,20 +74,19 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
         }
 
         private void getChat(String chatPartner, ChatMessage receivedChatMessage) {
-            final Chat chat;
             try {
-                chat = receivedChatMessage.getChat();
                 if (masterChannel != null) {
-                    masterChannel.call(new BotCommandCallable(chat, receivedChatMessage));
+                    // we got a slave
+                    SkypeChat skypeChat = new RemoteSkypeChat(receivedChatMessage);
+                    masterChannel.call(new BotCommandCallable(receivedChatMessage, skypeChat));
                 } else {
-                    SkypeChat skypeChat = new LocalSkypeChat(chat);
-                    Bot bot = new Bot(skypeChat, "hudson", "hostname", "!", null);
-                    if (receivedChatMessage != null) {
-                        // replay original message:
-                        bot.onMessage(new SkypeMessage(receivedChatMessage, true));//Ask skype                        
-                    }
+                    // we are on the master
+                    SkypeChat skypeChat = new LocalSkypeChat(receivedChatMessage);
+                    new BotCommandCallable(receivedChatMessage, skypeChat).call();
                 }
             } catch (SkypeException ex) {
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+            } catch (SkypeIMException ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
             } catch (Exception ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
