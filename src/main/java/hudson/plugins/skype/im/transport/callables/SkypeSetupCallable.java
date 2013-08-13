@@ -6,6 +6,7 @@ import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
 import com.skype.Skype;
 import hudson.plugins.im.bot.Bot;
+import hudson.plugins.skype.im.transport.LocalSkypeChat;
 import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
 import hudson.plugins.skype.im.transport.SkypeMessage;
@@ -59,7 +60,6 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
 
         public IMListener(Channel channel) {
             masterChannel = channel;
-
         }
 
         public void chatMessageReceived(ChatMessage receivedChatMessage) throws SkypeException {
@@ -81,9 +81,8 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
                 if (masterChannel != null) {
                     masterChannel.call(new BotCommandCallable(chat, receivedChatMessage));
                 } else {
-                    SkypeChat skypeChat = new SkypeChat(chat);
-                    Bot bot = new Bot(skypeChat, "hudson",
-                        "hostname", "!", null);
+                    SkypeChat skypeChat = new LocalSkypeChat(chat);
+                    Bot bot = new Bot(skypeChat, "hudson", "hostname", "!", null);
                     if (receivedChatMessage != null) {
                         // replay original message:
                         bot.onMessage(new SkypeMessage(receivedChatMessage, true));//Ask skype                        
