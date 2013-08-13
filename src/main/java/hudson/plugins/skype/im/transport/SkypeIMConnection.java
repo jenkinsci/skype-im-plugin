@@ -156,9 +156,9 @@ class SkypeIMConnection extends AbstractIMConnection {
         SkypeSetupCallable callable = new SkypeSetupCallable();
         Boolean result = false;
         Computer comp = slave.toComputer();
-        if (slave != null && comp != null && comp.isAcceptingTasks()) {
+        if (comp != null && comp.isOnline()) {
             try {
-                result = (Boolean) slave.getChannel().call(callable);
+                result = slave.getChannel().call(callable);
                 if (result) {
                     if (slave.getChannel() instanceof Channel) {
                         ((Channel) slave.getChannel()).addListener(new Channel.Listener() {
@@ -169,17 +169,16 @@ class SkypeIMConnection extends AbstractIMConnection {
                             }
                         });
                     }
-                    skypeSlave = slave;
 
+                    skypeSlave = slave;
                 }
             } catch (IOException ex) {
                 Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
                 Logger.getLogger(SkypeIMConnection.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } else {
-            result = Boolean.FALSE;
         }
+
         return result;
     }
 
