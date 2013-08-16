@@ -1,6 +1,5 @@
 package hudson.plugins.skype.im.transport;
 
-import com.skype.Chat;
 import com.skype.Chat.Status;
 import com.skype.ChatMessage;
 import com.skype.SkypeException;
@@ -17,13 +16,9 @@ public class RemoteSkypeChat extends SkypeChat implements Serializable {
     private String senderId;
     private boolean multiChat;
 
-    public RemoteSkypeChat(Chat chat, ChatMessage msg) throws SkypeIMException {
-        try {
-            this.senderId = msg.getSenderId();
-            this.multiChat = chat.getStatus().equals(Status.MULTI_SUBSCRIBED);
-        } catch (SkypeException e) {
-            throw new SkypeIMException(e);
-        }
+    public RemoteSkypeChat(ChatMessage msg) throws SkypeException {
+        this.senderId = msg.getSenderId();
+        this.multiChat = msg.getChat().getStatus().equals(Status.MULTI_SUBSCRIBED);
     }
 
     public void sendMessage(String msg) throws IMException {

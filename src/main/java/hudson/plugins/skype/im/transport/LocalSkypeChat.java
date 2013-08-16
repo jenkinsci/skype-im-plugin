@@ -2,6 +2,7 @@ package hudson.plugins.skype.im.transport;
 
 import com.skype.Chat;
 import com.skype.Chat.Status;
+import com.skype.ChatMessage;
 import com.skype.SkypeException;
 import hudson.plugins.im.IMException;
 
@@ -13,8 +14,8 @@ public class LocalSkypeChat extends SkypeChat {
 
     private final Chat chat;
 
-    public LocalSkypeChat(Chat chat) {
-        this.chat = chat;
+    public LocalSkypeChat(ChatMessage msg) throws SkypeException {
+        this.chat = msg.getChat();
     }
 
     public void sendMessage(String msg) throws IMException {
