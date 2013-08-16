@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package hudson.plugins.skype.im.transport;
 
 import com.skype.Chat;
-import com.skype.SkypeImpl;
+import com.skype.Skype;
 import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.Node.Mode;
