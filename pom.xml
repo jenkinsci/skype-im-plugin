@@ -21,6 +21,12 @@
             <email>jarlebh@gmail.com</email>
             <timezone>+2</timezone>
         </developer>
+        <developer>
+            <id>klk</id>
+            <name>Hans-Joachim Kliemeck</name>
+            <email>klk@mmw.ag</email>
+            <timezone>+2</timezone>
+        </developer>
     </developers>
 
     <properties>
