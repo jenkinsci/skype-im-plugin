@@ -5,6 +5,8 @@ import com.skype.ChatMessage;
 import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
 import com.skype.Skype;
+import com.skype.connector.Connector;
+import com.skype.connector.ConnectorException;
 import hudson.plugins.skype.im.transport.LocalSkypeChat;
 import hudson.plugins.skype.im.transport.RemoteSkypeChat;
 import hudson.plugins.skype.im.transport.SkypeChat;
@@ -48,6 +50,12 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
                 public void onClosed(Channel channel, IOException cause) {
                     Skype.removeChatMessageListener(listener);
                     System.err.println("Removed skype listener");
+
+                    try {
+                        Connector.getInstance().dispose();
+                    } catch (ConnectorException ex) {
+                        System.err.println("dispose failed");
+                    }
                 }
             });
         }
