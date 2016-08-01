@@ -2,7 +2,6 @@ package hudson.plugins.skype.im.transport;
 
 import hudson.Extension;
 import hudson.model.User;
-import hudson.model.UserProperty;
 import hudson.plugins.im.DefaultIMMessageTarget;
 import hudson.plugins.im.GroupChatIMMessageTarget;
 import hudson.plugins.im.IMConnection;
@@ -13,13 +12,10 @@ import hudson.plugins.im.IMMessageTargetConverter;
 import hudson.plugins.im.IMPublisher;
 import hudson.plugins.im.MatrixJobMultiplier;
 import hudson.plugins.im.build_notify.BuildToChatNotifier;
-import hudson.plugins.skype.im.transport.callables.SkypeVerifyUserCallable;
 import hudson.plugins.skype.user.SkypeUserProperty;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Mailer;
 import hudson.tasks.Publisher;
-import java.io.IOException;
 
 import java.util.List;
 import org.springframework.util.Assert;
@@ -71,21 +67,6 @@ public class SkypePublisher extends IMPublisher {
         String result = null;
         if (skypeUserProperty != null && skypeUserProperty.getSkypeId() != null && skypeUserProperty.getSkypeId().length() > 0) {
             result = skypeUserProperty.getSkypeId();
-        } else {
-            try {                            
-                Mailer.UserProperty prop = user.getProperty(Mailer.UserProperty.class);
-                System.out.println("TRying "+prop);
-                if (prop != null) {
-                    SkypeVerifyUserCallable callable = new SkypeVerifyUserCallable(prop.getAddress());
-                    result = ((SkypeIMConnection)getIMConnection()).getChannel().call(callable);                    
-                    user.addProperty(new SkypeUserProperty(result));
-                    user.save();
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
         }
         return result;
     }

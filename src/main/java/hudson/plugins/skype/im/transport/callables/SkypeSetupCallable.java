@@ -1,23 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package hudson.plugins.skype.im.transport.callables;
 
 import com.skype.Chat;
 import com.skype.ChatMessage;
 import com.skype.ChatMessageListener;
 import com.skype.SkypeException;
-import com.skype.SkypeImpl;
-import hudson.plugins.im.bot.Bot;
+import com.skype.Skype;
+import com.skype.connector.Connector;
+import com.skype.connector.ConnectorException;
+import hudson.plugins.skype.im.transport.LocalSkypeChat;
+import hudson.plugins.skype.im.transport.RemoteSkypeChat;
 import hudson.plugins.skype.im.transport.SkypeChat;
 import hudson.plugins.skype.im.transport.SkypeIMException;
-import hudson.plugins.skype.im.transport.SkypeMessage;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,29 +23,17 @@ import java.util.logging.Logger;
  */
 public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
 
-    static Collection<String> supportedArchs = null;
-
-    static {
-        supportedArchs = new ArrayList<String>();
-        supportedArchs.add("x86");
-        supportedArchs.add("i386");
-        supportedArchs.add("i586");
-    }
-
     public Boolean call() throws SkypeIMException {
         try {
-            if (!supportedArchs.contains(System.getProperty("os.arch"))) {
-                throw new RuntimeException("Cannot use skype server on a 64 bit jvm (" + System.getProperty("os.arch") + ")");
-            }
-            if (!SkypeImpl.isInstalled()) {
+            if (!Skype.isInstalled()) {
                 throw new RuntimeException("Skype not installed.");
             }
-            if (!SkypeImpl.isRunning()) {
+            if (!Skype.isRunning()) {
                 //throw new RuntimeException("Skype is not running.");
                 System.err.println("Skype is probably not running");
             }
-            SkypeImpl.setDebug(true);
-            SkypeImpl.setDaemon(true);
+            Skype.setDebug(true);
+            Skype.setDaemon(true);
             addSkypeListener(Channel.current());
             return true;
         } catch (SkypeException ex) {
@@ -59,13 +43,19 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
 
     private void addSkypeListener(Channel channel) throws SkypeException {
         final IMListener listener = new SkypeSetupCallable.IMListener(channel);
-        SkypeImpl.addChatMessageListener(listener);
+        Skype.addChatMessageListener(listener);
         if (channel != null) {
             channel.addListener(new Channel.Listener() {
                 @Override
                 public void onClosed(Channel channel, IOException cause) {
-                    SkypeImpl.removeChatMessageListener(listener);
+                    Skype.removeChatMessageListener(listener);
                     System.err.println("Removed skype listener");
+
+                    try {
+                        Connector.getInstance().dispose();
+                    } catch (ConnectorException ex) {
+                        System.err.println("dispose failed");
+                    }
                 }
             });
         }
@@ -77,7 +67,6 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
 
         public IMListener(Channel channel) {
             masterChannel = channel;
-
         }
 
         public void chatMessageReceived(ChatMessage receivedChatMessage) throws SkypeException {
@@ -93,21 +82,19 @@ public class SkypeSetupCallable implements Callable<Boolean, SkypeIMException> {
         }
 
         private void getChat(String chatPartner, ChatMessage receivedChatMessage) {
-            final Chat chat;
             try {
-                chat = receivedChatMessage.getChat();
                 if (masterChannel != null) {
-                    masterChannel.call(new BotCommandCallable(chat, receivedChatMessage));
+                    // we got a slave
+                    SkypeChat skypeChat = new RemoteSkypeChat(receivedChatMessage);
+                    masterChannel.call(new BotCommandCallable(receivedChatMessage, skypeChat));
                 } else {
-                    SkypeChat skypeChat = new SkypeChat(chat);
-                    Bot bot = new Bot(skypeChat, "hudson",
-                        "hostname", "!", null);
-                    if (receivedChatMessage != null) {
-                        // replay original message:
-                        bot.onMessage(new SkypeMessage(receivedChatMessage, true));//Ask skype                        
-                    }
+                    // we are on the master
+                    SkypeChat skypeChat = new LocalSkypeChat(receivedChatMessage);
+                    new BotCommandCallable(receivedChatMessage, skypeChat).call();
                 }
             } catch (SkypeException ex) {
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+            } catch (SkypeIMException ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
             } catch (Exception ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
